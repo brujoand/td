@@ -12,7 +12,8 @@ function list_items(){
   while read line; do
     id=$(( id + 1 ))
     echo -e "\t$id | $line"
-  done < $todo_file  
+  done < $todo_file
+  echo -e "\n$id items, $(grep -c -v '[X]' $todo_file) pending, $(grep -c '[X]' $todo_file) done"
 }
 
 function add_item(){
