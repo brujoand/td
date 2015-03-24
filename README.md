@@ -9,10 +9,12 @@ Oh the puns with this one...
 
 Features:
  - [X] Add, delete, complete, reset and list items
- - [ ] Pretty print with colors and stuff
+ - [X] Pretty print with colors and stuff
+ - [X] Add install script and configfile
  - [ ] Hide the sed backupfile
  - [ ] Push to gist/github
  - [ ] Pull changes from github
+ - [ ] Add support for multiple lists
 
 
 

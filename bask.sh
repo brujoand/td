@@ -1,6 +1,11 @@
 #! /usr/bin/env bash
 
-todo_file=todo.md
+if [[ -f ~/.baskrc ]]; then
+  . ~/.baskrc
+else
+  echo "Please run ./install.sh"
+  exit
+fi
 
 function print_usage(){
   echo -e "Usage: $(basename $0)\n\t-a(dd) item\n\t-d(elete) item_id\n\t-c(omplete) item_id\n\t-r(eset) item_id\n\t-h(elp)"
@@ -13,7 +18,7 @@ function list_items(){
     id=$(( id + 1 ))
     echo -e "\t$id | $line"
   done < $todo_file
-  echo -e "\n$id items, $(grep -c -v '[X]' $todo_file) pending, $(grep -c '[X]' $todo_file) done"
+  echo -e "\n$color_pending$id items, $color_todo$(grep -c -v '[X]' $todo_file) pending, $color_done$(grep -c '[X]' $todo_file) done$reset"
 }
 
 function add_item(){
