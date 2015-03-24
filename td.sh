@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
-if [[ -f ~/.baskrc ]]; then
-  . ~/.baskrc
+if [[ -f ~/.tdrc ]]; then
+  . ~/.tdrc
 else
   echo "Please run ./install.sh"
   exit
