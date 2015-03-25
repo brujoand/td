@@ -2,6 +2,7 @@
 
 todo_folder=~/td
 default_list=inbox
+todo_file=$todo_folder/default_list
 
 if [[ ! -f $todo_file ]]; then
 	mkdir -p $(dirname "$todo_file")
