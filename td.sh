@@ -1,5 +1,7 @@
 #! /usr/bin/env bash
 
+#### Init ####
+
 if [[ -f ~/.tdrc ]]; then
   . ~/.tdrc
 else
@@ -7,13 +9,22 @@ else
   exit
 fi
 
+todo_file="$todo_folder/$default_list.md"
+
+#### Functions ####
+
 function print_usage(){
-  echo -e "Usage: $(basename $0)\n\t-a(dd) item\n\t-d(elete) item_id\n\t-c(omplete) item_id\n\t-r(eset) item_id\n\t-h(elp)"
+  echo -e "Usage: $(basename $0) flags(optional) <action> <argument>\nFlags:\n\t-h(elp)\n\t-l(ist) <listname>\nActions:\n\tadd <task name>\n\trm <id>\n\tdo <id>\n\tundo <id>"
   exit
 }
 
 function list_items(){
-  id=0
+  if [ ! -f "$todo_file" ]; then
+  echo -e "Welcome, let me get you started:\n"
+  add_item "Create a new item!"
+  fi
+
+  id=0  
   while read line; do
     id=$(( id + 1 ))
     echo -e "\t$id | $line"
@@ -41,45 +52,42 @@ function reset_item(){
   (sed -i.bak -e "$id s/\[X\]/[ ]/" $todo_file)
 }
 
-if [ ! -f "$todo_file" ]; then
-  echo -e "Welcome, let me get you started:\n"
-  add_item "Create a new item!"
-fi
+#### Handling Arguments ####
 
-while getopts ":a:d:c:r:h" flag; do
+while getopts ":h:l:" flag; do
   case $flag in
-    a)
+    l)
       if [[ -z $OPTARG ]]; then
         print_usage
       else
-        add_item "$OPTARG"
-      fi
-      ;;
-    d)
-      if [[ -z $OPTARG ]]; then
-        print_usage
-      else
-        delete_item "$OPTARG"
-      fi
-      ;;
-    c)
-      if [[ -z $OPTARG ]]; then
-        print_usage
-      else
-        complete_item "$OPTARG"
-      fi
-      ;;
-    r)
-      if [[ -z $OPTARG ]]; then
-        print_usage
-      else
-        reset_item "$OPTARG"
+        todo_file="$todo_folder/$OPTARG.md"
       fi
       ;;
     *)
       print_usage
       ;;
   esac
+  shift $((OPTIND-1)) 
 done
+
+if [[ "$#" -eq 2 ]]; then # larger than two
+  action=$1
+  action_arg=$2
+
+  case $action in 
+    add)
+      add_item "$action_arg"
+      ;;
+    rm)
+      delete_item "$action_arg"      
+      ;;
+    do)
+      complete_item "$action_arg"
+      ;;
+    undo)      
+      reset_item "$action_arg"
+      ;;
+  esac
+fi
 
 list_items

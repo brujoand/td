@@ -8,6 +8,7 @@ Features:
  - [X] Add, delete, complete, reset and list items
  - [X] Pretty print with colors and stuff
  - [X] Add install script and configfile
+ - [ ] Add autocompletion
  - [ ] Hide the sed backupfile
  - [ ] Push to gist/github
  - [ ] Pull changes from github
