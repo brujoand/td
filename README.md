@@ -13,6 +13,6 @@ Features:
  - [ ] Push to gist/github
  - [ ] Pull changes from github
  - [ ] Add support for multiple lists
-
+ - [ ] Allow moving items from inbox to some other list
 
 
