@@ -15,13 +15,13 @@ EOF
 }
 
 read -e -p "Where should we store your todoslists?: " todo_folder
+todo_folder=${todo_folder%/}
 
 default_list=inbox
-todo_file=$todo_folder/default_list
 config_file=~/.tdrc
 target_install="/usr/local/bin/td"
 
-if [[ ! -f "$todo_folder" ]]; then
+if [[ ! -d "$todo_folder" ]]; then
 	mkdir -p "$todo_folder"
 	echo "Created dir $todo_folder"
 else
@@ -40,7 +40,7 @@ else
 fi
 
 if [[ ! -f "$target_install" ]]; then
-  ln -s $(pwd)/td.sh $target_install
+  ln -s "$(pwd)/td.sh" $target_install
   echo "A symlink created $target_install -> $(pwd)/td.sh"
 else
   echo "Symlink already in place at $target_install -> $(pwd)/td.sh"
