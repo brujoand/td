@@ -57,6 +57,13 @@ function undo_task(){
   (sed -i.bak -e "$1 s/\[X\]/[ ]/" $task_list)
 }
 
+function move_task(){
+  id=$1
+  target_list="$todo_folder/$1.md"
+  (sed -n "$id p" $task_list >> "$target_list" && delete_task $id)
+  list_todos_for_list $target_list
+}
+
 #### Handling Arguments ####
 while getopts ":l:a" flag; do
   case $flag in
@@ -78,24 +85,34 @@ while getopts ":l:a" flag; do
   shift $((OPTIND-1)) 
 done
 
-if [[ "$#" -eq 2 ]]; then # larger than two
+if [[ "$#" -gt 1 ]]; then # larger than two
   action=$1
-  action_arg=$2
+  task_id=$2
 
   case $action in 
     add)
-      add_task "$action_arg"
+      add_task "$task_id"
       ;;
     rm)
-      delete_task "$action_arg"
+      delete_task "$task_id"
       ;;
     do)
-      complete_task "$action_arg"
+      complete_task "$task_id"
       ;;
     undo)      
-      undo_task "$action_arg"
+      undo_task "$task_id"
       ;;
+    mv)
+      if [[ ! -z $3 ]];then
+        move_task "$task_id" "$3"
+      else
+        print_usage
+      fi
+      ;;
+    *)
+      print_usage
+      ;;  
   esac
-fi
+fi  
 
 list_todos_for_list $task_list

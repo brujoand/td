@@ -24,7 +24,7 @@ Features:
  - [ ] Push to gist/github
  - [ ] Pull changes from github
  - [ ] Add support for multiple lists
- - [ ] Allow moving tasks from inbox to some other list
+ - [X] Allow moving tasks from inbox to some other list
  - [ ] Push Completed tasks to archivelist with timestamp
 
 
