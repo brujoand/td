@@ -9,56 +9,52 @@ else
   exit
 fi
 
-todo_file="$todo_folder/$default_list.md"
+task_list="$todo_folder/$default_list.md"
 
 #### Functions ####
 
 function print_usage(){
-  echo -e "Usage: $(basename $0) flags(optional) <action> <argument>\nFlags:\n\t-h help\n\t-l list <listname>\n\t-a (list all todos)\nActions:\n\tadd <task name>\n\trm <id>\n\tdo <id>\n\tundo <id>"
+  echo -e "Usage: $(basename $0) flags(optional) <action> <argument>\nFlags:\n\t-h help\n\t-l list <listname>\n\t-a (list all tasks)\nActions:\n\tadd <task name>\n\trm <id>\n\tdo <id>\n\tundo <id>"
   exit
 }
 
-function list_items(){
-  if [ ! -f "$todo_file" ]; then
+function list_todos_for_list(){
+  list=$1
+  if [ ! -f "$list" ]; then
   echo -e "Welcome, let me get you started:\n"
-  add_item "Create a new item!"
+  add_task "Create a new task!"
   fi
 
-  echo -e "\n$color_status$todo_file:$color_reset "
+  echo -e "\n$color_status$list:$color_reset "
 
   id=0  
   while read line; do
     id=$(( id + 1 ))
     echo -e "\t$id | $line"
-  done < $todo_file
-  echo -e "\n$color_pending$id items, $color_todo$(grep -c -v '[X]' $todo_file) pending, $color_done$(grep -c '[X]' $todo_file) done$color_reset"
+  done < $list
+  echo -e "\n$color_pending$id tasks, $color_todo$(grep -c -v '[X]' $list) pending, $color_done$(grep -c '[X]' $list) done$color_reset"
 }
 
-function list_items_all_lists(){
+function list_tasks_from_all_lists(){
   for list in $(find $todo_folder -name "*.md"); do
-    todo_file=$list # Fix by using parameter
-    list_items
+    list_todos_for_list $list
   done
 }
 
-function add_item(){
-  item=$1
-  echo "- [ ] $item" >> $todo_file
+function add_task(){
+  echo "- [ ] $1" >> $task_list
 }
 
-function delete_item(){
-  id=$1
-  (sed -i.bak -e "$id d" $todo_file)
+function delete_task(){
+  (sed -i.bak -e "$1 d" $task_list)
 }
 
-function complete_item(){
-  id=$1
-  (sed -i.bak -e "$id s/\[ \]/[X]/" $todo_file)
+function complete_task(){
+  (sed -i.bak -e "$1 s/\[ \]/[X]/" $task_list)
 }
 
-function reset_item(){
-  id=$1
-  (sed -i.bak -e "$id s/\[X\]/[ ]/" $todo_file)
+function undo_task(){
+  (sed -i.bak -e "$1 s/\[X\]/[ ]/" $task_list)
 }
 
 #### Handling Arguments ####
@@ -68,11 +64,11 @@ while getopts ":l:a" flag; do
       if [[ -z $OPTARG ]]; then
         print_usage
       else
-        todo_file="$todo_folder/$OPTARG.md"
+        task_list="$todo_folder/$OPTARG.md"
       fi
       ;;
     a)
-      list_items_all_lists      
+      list_tasks_from_all_lists
       exit
       ;;
     *)
@@ -88,18 +84,18 @@ if [[ "$#" -eq 2 ]]; then # larger than two
 
   case $action in 
     add)
-      add_item "$action_arg"
+      add_task "$action_arg"
       ;;
     rm)
-      delete_item "$action_arg"      
+      delete_task "$action_arg"
       ;;
     do)
-      complete_item "$action_arg"
+      complete_task "$action_arg"
       ;;
     undo)      
-      reset_item "$action_arg"
+      undo_task "$action_arg"
       ;;
   esac
 fi
 
-list_items
+list_todos_for_list $task_list
