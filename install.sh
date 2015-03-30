@@ -11,7 +11,7 @@ function write_config(){
   color_pending='\033[01;33m'
   color_status='\033[01;34m' 
 EOF
-  echo "I put your config in $config_file"
+  echo "Config written to $config_file"
 }
 
 read -e -p "Where should we store your todoslists?: " todo_folder
@@ -31,7 +31,12 @@ fi
 if [[ ! -f "$config_file" ]]; then
   write_config
 else
-  echo "$config_file exists, I'm not overwriting it."
+  read -e -p "$config_file exists, overwrite? [y/n]: " overwrite
+  if [[ $overwrite == "y" ]]; then 
+  	write_config
+  else
+  	echo "Leaving $config_file as is.."
+  fi
 fi
 
 if [[ ! -f "$target_install" ]]; then
