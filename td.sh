@@ -14,7 +14,7 @@ task_list="$todo_folder/$default_list.md"
 #### Functions ####
 
 function print_usage(){
-  echo -e "Usage: $(basename $0) flags(optional) <action> <argument>\nFlags:\n\t-h help\n\t-l list <listname>\n\t-a (list all tasks)\nActions:\n\tadd <task name>\n\trm <id>\n\tdo <id>\n\tundo <id>\nmv <id> <list>"
+  echo -e "Usage: $(basename $0) flags(optional) <action> <argument>\nFlags:\n\t-h help\n\t-l list <listname>\n\t-a (list all tasks)\nActions:\n\tadd <task name>\n\trm <id>\n\tdo <id>\n\tundo <id>\n\tmv <id> <list>"
   exit
 }
 
