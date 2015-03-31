@@ -22,7 +22,7 @@ config_file=~/.tdrc
 target_install="/usr/local/bin/td"
 
 if [[ ! -d "$todo_folder" ]]; then
-	mkdir -p "$todo_folder" > /dev/null && echo -e "Created dir $todo_folder\n"
+	mkdir -p "$todo_folder" > /dev/null && echo -e "Created dir $todo_folder \n"
   (cd "$todo_folder" && git init)
 else
   echo "$todo_folder already exists"
