@@ -14,7 +14,7 @@ EOF
   echo "Config written to $config_file"
 }
 
-read -e -p "Where should we store your todoslists?: " todo_folder
+read -e -p "Where should we store your todoslists?: " -i "$HOME/" -e todo_folder
 todo_folder=${todo_folder%/}
 
 default_list=inbox
@@ -22,16 +22,19 @@ config_file=~/.tdrc
 target_install="/usr/local/bin/td"
 
 if [[ ! -d "$todo_folder" ]]; then
-	mkdir -p "$todo_folder"
-	echo "Created dir $todo_folder"
+	mkdir -p "$todo_folder" > /dev/null && echo -e "Created dir $todo_folder\n"
+  (cd "$todo_folder" && git init)
 else
   echo "$todo_folder already exists"
+  if [[ ! -d "$todo_folder/.git" ]]; then
+    (cd "$todo_folder" && git init)
+  fi
 fi
 
 if [[ ! -f "$config_file" ]]; then
   write_config
 else
-  read -e -p "$config_file exists, overwrite? [y/n]: " overwrite
+  read -e -p "\n$config_file exists, overwrite? [y/n]: " overwrite
   if [[ $overwrite == "y" ]]; then 
   	write_config
   else
@@ -41,7 +44,7 @@ fi
 
 if [[ ! -f "$target_install" ]]; then
   ln -s "$(pwd)/td.sh" $target_install
-  echo "A symlink created $target_install -> $(pwd)/td.sh"
+  echo -e "\nSymlink created $target_install -> $(pwd)/td.sh"
 else
-  echo "Symlink already in place at $target_install -> $(pwd)/td.sh"
+  echo -e "\nSymlink already in place at $target_install -> $(pwd)/td.sh"
 fi
