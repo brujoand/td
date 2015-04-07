@@ -14,7 +14,7 @@ task_list="$todo_folder/$default_list.md"
 #### Functions ####
 
 function print_usage(){
-  echo -e "Usage: $(basename $0) flags(optional) <action> <argument>\nFlags:\n\t-h help\n\t-l list <listname>\n\t-a (list all tasks)\nActions:\n\tadd <task name>\n\trm <id>\n\tdo <id>\n\tundo <id>\n\tmv <id> <list>"
+  echo -e "Usage: $(basename $0) flags(optional) <action> <argument>\nFlags:\n\t-h help\n\t-l list <listname>\n\t-a (list all tasks)\nActions:\n\tadd <task name>\n\trm <id>\n\tdo <id>\n\tundo <id>\n\tlog <id>\n\tmv <id> <list>"
   exit
 }
 
@@ -30,56 +30,69 @@ function list_todos_for_list(){
   while read line; do
     id=$(( id + 1 ))
     echo -e "\t$id | $line"
-  done < $list
+  done < "$list"
   echo -e "\n$color_pending$id tasks, $color_todo$(grep -c -v '[X]' $list) pending, $color_done$(grep -c '[X]' $list) done$color_reset"
 }
 
 function list_tasks_from_all_lists(){
   for list in $todo_folder/*.md; do
-    list_todos_for_list $list
+    list_todos_for_list "$list"
   done
 }
 
-function get_task_text(){  
-  echo $(sed -n "$1 p" $task_list)
+function get_task_text(){  # Not text, intire line. rename
+  sed -n "$1 p" $task_list | sed 's/- \[.*\] //'
 }
 
 function commit_changes(){
   (cd $todo_folder && git add *.md && git commit -m "$1" > /dev/null)
-  (rm $todo_folder/*.md.bak > /dev/null 2>&1)
+  rm $todo_folder/*.md.bak > /dev/null 2>&1
+}
+
+function get_log_for_task(){
+  task=$1
+  task_text=$(get_task_text "$1")     
+  log=$(cd $todo_folder && git log --pretty=format:'%s - %ci' | grep "'$task_text'" | sed "s/ '$task_text'//" | column -t)  
+  echo "${log}" # This look odd. fix
 }
 
 function add_task(){
   task_text=$1
-  echo "- [ ] $1" >> $task_list
-  commit_changes "Added '$task_text'"
+  echo "- [ ] $1" >> "$task_list"
+  commit_changes "Added '$task_text' in ${task_list##*/}"
 }
 
 function delete_task(){
-  task_text=$(get_task_text $1)
-  (sed -i.bak -e "$1 d" $task_list)
-  commit_changes "Deleted '$task_text'"
+  task_text=$(get_task_text "$1")
+  (sed -i.bak -e "$1 d" "$task_list")
+  commit_changes "Deleted '$task_text' in ${task_list##*/}"
 }
-
+    
 function complete_task(){
-  task_text=$(get_task_text $1)
-  (sed -i.bak -e "$1 s/\[ \]/[X]/" $task_list)
-  commit_changes "Completed '$task_text'"
+  task_text=$(get_task_text "$1")
+  (sed -i.bak -e "$1 s/\[ \]/[X]/" "$task_list")
+  commit_changes "Completed '$task_text' in ${task_list##*/}"
 }
 
 function undo_task(){
-  task_text=$(get_task_text $1)
-  (sed -i.bak -e "$1 s/\[X\]/[ ]/" $task_list)
-  commit_changes "Restarted '$task_text'"
+  task_text=$(get_task_text "$1")
+  sed -i.bak -e "$1 s/\[X\]/[ ]/" "$task_list"
+  commit_changes "Restarted '$task_text' in ${task_list##*/}"
 }
 
 function move_task(){
   id=$1
   target_list="$todo_folder/$2.md"
-  task_text=$(get_task_text $1)
-  (sed -n "$id p" $task_list >> "$target_list" && delete_task $id)  
-  list_todos_for_list $target_list
-  commit_changes "Moved '$task_text' from $task_list to $target_list"
+  src_list=$task_list
+
+  task_status=$(sed -n "$id p" "$src_list" | sed -n 's/- \[\(.*\)\].*/\1/p')
+  task_text="$(get_task_text "$id")"
+
+  sed -n "$id p" $task_list >> "$target_list" && sed -i.bak -e "$1 d" "$src_list"
+
+  list_todos_for_list "$src_list"
+  commit_changes "Moved '$task_text' to ${target_list##*/}"
+  task_list=$target_list
 }
 
 #### Handling Arguments ####
@@ -108,19 +121,22 @@ if [[ "$#" -gt 1 ]]; then # larger than two
   task_id=$2
 
   case $action in 
-    add)
+    'add')
       add_task "$task_id"
       ;;
-    rm)
+    'rm')
       delete_task "$task_id"
       ;;
-    do)
+    'do')
       complete_task "$task_id"
       ;;
-    undo)      
+    'undo')      
       undo_task "$task_id"
       ;;
-    mv)
+    'log')
+      get_log_for_task "$task_id"
+      ;;
+    'mv')
       if [[ ! -z $3 ]];then
         move_task "$task_id" "$3"
       else
@@ -133,4 +149,4 @@ if [[ "$#" -gt 1 ]]; then # larger than two
   esac
 fi  
 
-list_todos_for_list $task_list
+list_todos_for_list "$task_list"

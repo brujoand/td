@@ -11,7 +11,7 @@ I don't need a fancy notification system, because I always ignore them.
 I don't need fancy apps, because markdown works just fine.
 I don't need deadlines, because calendars.
 
-So this is a list, or several lists. With a shellsciptwrapper. 
+So this is a list, or several lists. With a shellscriptwrapper. 
 
 Features:
  - [X] Add, delete, complete, reset and list tasks
@@ -21,6 +21,7 @@ Features:
  - [ ] Add autocompletion
  - [X] Hide the sed backupfile
  - [X] Commit each change to git
+ - [X] List history of a task
  - [ ] Publish to gist
  - [ ] Pull/Push changes from/to git
  - [X] Add support for multiple lists
