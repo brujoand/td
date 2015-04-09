@@ -40,19 +40,30 @@ function list_tasks_from_all_lists(){
   done
 }
 
+function drop_list(){
+  read -r -p "Permenantly remove list ${task_list##*/}? [y/N] " response
+  if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]
+  then
+      (cd $todo_folder && git rm ${task_list##*/})
+      commit_changes "Deleted list ${task_list##*/}"
+  else
+      echo "doing nonthing.."
+  fi
+  exit
+}
+
 function get_task_text(){  # Not text, intire line. rename
   sed -n "$1 p" $task_list | sed 's/- \[.*\] //'
 }
 
 function commit_changes(){
-  (cd $todo_folder && git add *.md && git commit -m "$1" > /dev/null)
-  rm $todo_folder/*.md.bak > /dev/null 2>&1
+  (cd "$todo_folder" && git add "*.md" && git commit -am "$1" > /dev/null)
+  rm "$todo_folder/*.md.bak" > /dev/null 2>&1
 }
 
-function get_log_for_task(){
-  task=$1
+function get_log_for_task(){  
   task_text=$(get_task_text "$1")     
-  log=$(cd $todo_folder && git log --pretty=format:'%s - %ci' | grep "'$task_text'" | sed "s/ '$task_text'//" | column -t)  
+  log=$(cd "$todo_folder" && git log --pretty=format:'%s - %ci' | grep "'$task_text'" | sed "s/ '$task_text'//" | column -t)  
   echo "${log}" # This look odd. fix
 }
 
@@ -84,11 +95,10 @@ function move_task(){
   id=$1
   target_list="$todo_folder/$2.md"
   src_list=$task_list
-
-  task_status=$(sed -n "$id p" "$src_list" | sed -n 's/- \[\(.*\)\].*/\1/p')
+  
   task_text="$(get_task_text "$id")"
 
-  sed -n "$id p" $task_list >> "$target_list" && sed -i.bak -e "$1 d" "$src_list"
+  sed -n "$id p" "$task_list" >> "$target_list" && sed -i.bak -e "$1 d" "$src_list"
 
   list_todos_for_list "$src_list"
   commit_changes "Moved '$task_text' to ${target_list##*/}"
@@ -116,7 +126,7 @@ while getopts ":l:a" flag; do
   shift $((OPTIND-1)) 
 done
 
-if [[ "$#" -gt 1 ]]; then # larger than two
+if [[ "$#" -gt 1 ]]; then # larger than 1
   action=$1
   task_id=$2
 
@@ -142,6 +152,9 @@ if [[ "$#" -gt 1 ]]; then # larger than two
       else
         print_usage
       fi
+      ;;
+    'drop')
+      drop_list
       ;;
     *)
       print_usage
