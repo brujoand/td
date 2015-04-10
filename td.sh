@@ -14,7 +14,7 @@ task_list="$todo_folder/$default_list.md"
 #### Functions ####
 
 function print_usage(){
-  echo -e "Usage: $(basename $0) flags(optional) <action> <argument>\nFlags:\n\t-h help\n\t-l list <listname>\n\t-a (list all tasks)\nActions:\n\tadd <task name>\n\trm <id>\n\tdo <id>\n\tundo <id>\n\tlog <id>\n\tmv <id> <list>"
+  echo -e "Usage: $(basename $0) flags(optional) <action> <argument>\nFlags:\n\t-h help\n\t-l list <listname>\n\t-a (list all tasks)\nActions:\n\tadd <task name>\n\trm <id>\n\tdo <id>\n\tundo <id>\n\tlog <id>\n\tedit <id>\n\tmv <id> <list>"
   exit
 }
 
@@ -91,6 +91,13 @@ function undo_task(){
   commit_changes "Restarted '$task_text' in ${task_list##*/}"
 }
 
+function edit_task(){
+  #(read -e -i string) 
+  task_text=$(get_task_text "$1")
+  read -e -i "$task_text" new_text
+  sed -i.bak -e "$1 s/$task_text/$new_text/" "$task_list"
+}
+
 function move_task(){
   id=$1
   target_list="$todo_folder/$2.md"
@@ -145,6 +152,9 @@ if [[ "$#" -gt 1 ]]; then # larger than 1
       ;;
     'log')
       get_log_for_task "$task_id"
+      ;;
+    'edit')
+      edit_task "$task_id"
       ;;
     'mv')
       if [[ ! -z $3 ]];then

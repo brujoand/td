@@ -37,6 +37,7 @@ Things to do:
  - [X] Add, delete, complete, reset and list tasks
  - [X] Pretty print with colors and stuff
  - [X] Summary for each list
+ - [X] Edit tasks
  - [X] Add install script and configfile
  - [ ] Add autocompletion
  - [X] Hide the sed backupfile
@@ -47,5 +48,7 @@ Things to do:
  - [X] Add support for multiple lists
  - [X] Allow moving tasks from inbox to some other list
  - [ ] Push Completed tasks to archivelist with timestamp from gitlog
+ - [ ] Support todo.txt format
+ - [ ] Support 'Projects' as folders td -l <project>/<list> add <new task> 
 
 
